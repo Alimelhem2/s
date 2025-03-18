@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My PDF Library</title>
+    <style>
+        .pdf-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+        .pdf-item {
+            width: 30%; /* Roughly 3 items per row */
+            margin: 10px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-sizing: border-box; /* Include padding and border in width */
+        }
+        .pdf-item img {
+            width: 50px; /* Adjust icon size as needed */
+            margin-bottom: 10px;
+        }
+        .pdf-item a {
+            text-decoration: none;
+            color: #333;
+        }
+        .pdf-item a:hover {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>My PDF Library</h1>
+    <div class="pdf-container" id="pdfList">
+        </div>
+
+    <script>
+        async function fetchPDFs() {
+            try {
+                const response = await fetch('.'); // Fetch the root directory
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const text = await response.text();
+                const parser = new DOMParser();
+                const htmlDoc = parser.parseFromString(text, 'text/html');
+                const links = htmlDoc.querySelectorAll('a');
+                const pdfs = Array.from(links)
+                    .map(link => link.href)
+                    .filter(href => href.toLowerCase().endsWith('.pdf'));
+
+                const pdfList = document.getElementById('pdfList');
+                pdfs.forEach(pdf => {
+                    const fileName = pdf.substring(pdf.lastIndexOf('/') + 1);
+                    const pdfItem = document.createElement('div');
+                    pdfItem.className = 'pdf-item';
+                    pdfItem.innerHTML = `
+                        <img src="pdf-icon.png" alt="PDF Icon">
+                        <a href="${fileName}">${fileName}</a>
+                    `;
+                    pdfList.appendChild(pdfItem);
+                });
+            } catch (error) {
+                console.error('Error fetching PDFs:', error);
+                pdfList.innerHTML = '<p>Failed to load PDFs.</p>';
+            }
+        }
+
+        fetchPDFs();
+    </script>
+</body>
+</html>
