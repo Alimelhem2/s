@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>My PDF Library</title>
     <style>
         .pdf-container {
@@ -19,10 +20,6 @@
             text-align: center;
             box-sizing: border-box; /* Include padding and border in width */
         }
-        .pdf-item img {
-            width: 50px; /* Adjust icon size as needed */
-            margin-bottom: 10px;
-        }
         .pdf-item a {
             text-decoration: none;
             color: #333;
@@ -40,7 +37,7 @@
     <script>
         async function fetchPDFs() {
             try {
-                const response = await fetch('.'); // Fetch the root directory
+                const response = await fetch('.');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -54,11 +51,11 @@
 
                 const pdfList = document.getElementById('pdfList');
                 pdfs.forEach(pdf => {
-                    const fileName = pdf.substring(pdf.lastIndexOf('/') + 1);
+                    let fileName = pdf.substring(pdf.lastIndexOf('/') + 1);
+                    fileName = decodeURIComponent(fileName);
                     const pdfItem = document.createElement('div');
                     pdfItem.className = 'pdf-item';
                     pdfItem.innerHTML = `
-                        <img src="pdf-icon.png" alt="PDF Icon">
                         <a href="${fileName}">${fileName}</a>
                     `;
                     pdfList.appendChild(pdfItem);
