@@ -19,3 +19,9 @@ jobs:
           # This line changes slightly to grab the "Input"
           AI_DATA: ${{ github.event.inputs.ai_response }}
         run: python create_video.py
+
+        - name: Save Video as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Generated-Video
+          path: final.mp4
