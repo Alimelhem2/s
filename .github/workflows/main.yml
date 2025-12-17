@@ -3,24 +3,29 @@ on:
   workflow_dispatch:
     inputs:
       ai_response:
-        description: 'JSON data from Gemini'
+        description: 'AI Data'
         required: true
+        type: string
+
 jobs:
   render:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
         run: |
-          sudo apt-get install ffmpeg
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
           pip install gtts requests
-      - name: Run
+
+      - name: Run Python Script
         env:
-          # This line changes slightly to grab the "Input"
           AI_DATA: ${{ github.event.inputs.ai_response }}
         run: python create_video.py
 
-        - name: Save Video as Artifact
+      - name: Save Video as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Generated-Video
