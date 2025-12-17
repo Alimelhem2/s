@@ -1,7 +1,7 @@
 import os, json, requests
 from gtts import gTTS
 
-# 1. LOAD DATA FROM PIPEDREAM
+# 1. LOAD DATA
 try:
     raw_payload = os.getenv("AI_DATA")
     data = json.loads(raw_payload)
@@ -14,22 +14,17 @@ except Exception as e:
 tts = gTTS(text=data['script'], lang='en')
 tts.save("voice.mp3")
 
-# 3. DOWNLOAD BACKGROUND IMAGE (With verification)
-# I've updated the URL to a more reliable 'tech' source
-img_url = "https://source.unsplash.com/featured/1080x1920/?technology,galaxy"
-img_response = requests.get(img_url, allow_redirects=True)
+# 3. DOWNLOAD IMAGE
+# Using a static high-quality image URL for testing to avoid 404s
+img_url = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1080&h=1920&auto=format&fit=crop"
+img_response = requests.get(img_url)
+with open('bg.jpg', 'wb') as f:
+    f.write(img_response.content)
 
-if img_response.status_code == 200 and 'image' in img_response.headers.get('Content-Type', ''):
-    with open('bg.jpg', 'wb') as f:
-        f.write(img_response.content)
-    print("Image downloaded successfully.")
-else:
-    # FALLBACK: If download fails, create a solid black background
-    print("Image download failed. Creating fallback background...")
-    os.system("ffmpeg -f lavfi -i color=c=black:s=1080x1920:d=1 -vframes 1 bg.jpg")
-
-# 4. RENDER FINAL VIDEO
-# Added '-y' to overwrite and '-pix_fmt yuv420p' for mobile compatibility
+# 4. RENDER FINAL VIDEO (The "Black Screen" Fix)
+# -loop 1: Repeat the image
+# -pix_fmt yuv420p: Standard format for all players
+# -shortest: Stop the video as soon as the audio ends
 cmd = (
     "ffmpeg -y -loop 1 -i bg.jpg -i voice.mp3 "
     "-c:v libx264 -tune stillimage -c:a aac -b:a 192k "
