@@ -1,5 +1,10 @@
 name: Video Creator
-on: repository_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      ai_response:
+        description: 'JSON data from Gemini'
+        required: true
 jobs:
   render:
     runs-on: ubuntu-latest
@@ -11,5 +16,6 @@ jobs:
           pip install gtts requests
       - name: Run
         env:
-          AI_DATA: ${{ github.event.client_payload.ai_response }}
+          # This line changes slightly to grab the "Input"
+          AI_DATA: ${{ github.event.inputs.ai_response }}
         run: python create_video.py
