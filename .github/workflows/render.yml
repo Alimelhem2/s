@@ -1,0 +1,21 @@
+name: YouTube Automator
+on:
+  repository_dispatch:
+    types: [render_video]
+
+jobs:
+  run_automation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          pip install moviepy gTTS google-api-python-client google-auth-oauthlib
+      - name: Execute
+        env:
+          AI_DATA: ${{ github.event.client_payload.ai_response }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: python create_video.py
